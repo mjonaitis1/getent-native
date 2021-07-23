@@ -6,6 +6,19 @@ import (
 )
 
 func main(){
-	u, _ := user.Lookup("mjonaitis")
-	fmt.Printf("%+v", u)
+	us, err := user.GetAllUsers()
+	fmt.Println(len(us))
+	if err != nil{
+		panic(err)
+	}
+	for _, u := range us{
+		fmt.Printf("%+v \n", u)
+	}
+	gs, err := user.GetAllGroups()
+	if err != nil{
+		panic(err)
+	}
+	for _, g := range gs{
+		fmt.Printf("%+v \n", g)
+	}
 }

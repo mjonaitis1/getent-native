@@ -79,7 +79,7 @@ func matchGroupIndexValue(value string, idx int) lineFunc {
 }
 
 func findGroupId(id string, r io.Reader) (*Group, error) {
-	if v, err := readColonFile(r, matchGroupIndexValue(id, 2)); err != nil {
+	if v, err := readColonFile(r, matchGroupIndexValue(id, 2)); err != nil  {
 		return nil, err
 	} else if v != nil {
 		return v.(*Group), nil
