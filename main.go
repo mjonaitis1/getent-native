@@ -1,24 +1,47 @@
 package main
 
 import (
-	"./os/user"
+	"gogetent/os/user"
+
 	"fmt"
+	"sync"
 )
 
-func main(){
-	us, err := user.GetAllUsers()
-	fmt.Println(len(us))
-	if err != nil{
-		panic(err)
+var wg = sync.WaitGroup{}
+
+func main() {
+	num := 3
+
+	for i := 0; i < num; i++ {
+		go iterateUsers(i)
+		wg.Add(1)
 	}
-	for _, u := range us{
-		fmt.Printf("%+v \n", u)
+	wg.Wait()
+
+	fmt.Println("Starting to iterate over groups")
+	for i := 0; i < num; i++ {
+		go iterateGroups(i)
+		wg.Add(1)
 	}
-	gs, err := user.GetAllGroups()
-	if err != nil{
-		panic(err)
-	}
-	for _, g := range gs{
-		fmt.Printf("%+v \n", g)
-	}
+	wg.Wait()
+}
+
+func iterateUsers(listNum int) {
+	l := make([]string, 0, 10)
+	_ = user.IterateUsers(func(u *user.User) error {
+		l = append(l, u.Username)
+		return nil
+	})
+	fmt.Printf("Goroutine %d user names: %+v \n\n", listNum, l)
+	wg.Done()
+}
+
+func iterateGroups(listNum int) {
+	l := make([]string, 0, 10)
+	_ = user.IterateGroups(func(u *user.Group) error {
+		l = append(l, u.Name)
+		return nil
+	})
+	fmt.Printf("Goroutine %d group names: %+v \n\n", listNum, l)
+	wg.Done()
 }

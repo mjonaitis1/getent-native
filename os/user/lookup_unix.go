@@ -58,12 +58,12 @@ func matchGroupIndexValue(value string, idx int) lineFunc {
 	}
 	substr := []byte(leadColon + value + ":")
 	return func(line []byte) (v interface{}, err error) {
-		if !bytes.Contains(line, substr) || bytes.Count(line, colon) < 3 {
+		if (idx != -1 && !bytes.Contains(line, substr)) || bytes.Count(line, colon) < 3 {
 			return
 		}
 		// wheel:*:0:root
 		parts := strings.SplitN(string(line), ":", 4)
-		if len(parts) < 4 || parts[0] == "" || parts[idx] != value ||
+		if len(parts) < 4 || parts[0] == "" || (idx != -1 && parts[idx] != value) ||
 			// If the file contains +foo and you search for "foo", glibc
 			// returns an "invalid argument" error. Similarly, if you search
 			// for a gid for a row where the group name starts with "+" or "-",
@@ -79,7 +79,7 @@ func matchGroupIndexValue(value string, idx int) lineFunc {
 }
 
 func findGroupId(id string, r io.Reader) (*Group, error) {
-	if v, err := readColonFile(r, matchGroupIndexValue(id, 2)); err != nil  {
+	if v, err := readColonFile(r, matchGroupIndexValue(id, 2)); err != nil {
 		return nil, err
 	} else if v != nil {
 		return v.(*Group), nil
@@ -97,7 +97,8 @@ func findGroupName(name string, r io.Reader) (*Group, error) {
 }
 
 // returns a *User for a row if that row's has the given value at the
-// given index.
+// given index. If idx is set to -1, matches and returns any valid *User entry.
+// idx should be set to -1 only for iteration process.
 func matchUserIndexValue(value string, idx int) lineFunc {
 	var leadColon string
 	if idx > 0 {
@@ -105,12 +106,12 @@ func matchUserIndexValue(value string, idx int) lineFunc {
 	}
 	substr := []byte(leadColon + value + ":")
 	return func(line []byte) (v interface{}, err error) {
-		if !bytes.Contains(line, substr) || bytes.Count(line, colon) < 6 {
+		if (idx != -1 && !bytes.Contains(line, substr)) || bytes.Count(line, colon) < 6 {
 			return
 		}
 		// kevin:x:1005:1006::/home/kevin:/usr/bin/zsh
 		parts := strings.SplitN(string(line), ":", 7)
-		if len(parts) < 6 || parts[idx] != value || parts[0] == "" ||
+		if len(parts) < 6 || (idx != -1 && parts[idx] != value) || parts[0] == "" ||
 			parts[0][0] == '+' || parts[0][0] == '-' {
 			return
 		}
