@@ -9,17 +9,17 @@ type NextUserFunc func(*User) error
 type NextGroupFunc func(*Group) error
 
 // IterateUsers iterates over user entries. For each retrieved *User entry provided NextUserFunc is called.
-// If CGO is enabled on unix systems IterateUsers is not safe with concurrent usage. Because of this, when
-// using IterateUsers with multiple goroutines, locking mechanism such as sync.Mutex must be used in order to
-// prevent multiple goroutines calling IterateUsers at the same time.
+//
+// If CGO is enabled, getpwent is used in the underlying implementation. Since getpwent is not thread-safe,
+// locking is strongly advised.
 func IterateUsers(n NextUserFunc) error {
 	return iterateUsers(n)
 }
 
 // IterateGroups iterates over group entries. For each retrieved *Group entry provided NextGroupFunc is called.
-// If CGO is enabled on unix systems IterateGroups is not safe with concurrent usage. Because of this, when
-// using IterateGroups with multiple goroutines, locking mechanism such as sync.Mutex must be used in order to
-// prevent multiple goroutines calling IterateGroups at the same time.
+//
+// If CGO is enabled, getgrent is used in the underlying implementation. Since getgrent is not thread-safe,
+// locking is strongly advised.
 func IterateGroups(n NextGroupFunc) error {
 	return iterateGroups(n)
 }

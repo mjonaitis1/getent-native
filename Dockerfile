@@ -1,6 +1,6 @@
 FROM golang:1.16
 
-WORKDIR ./gogetent
+WORKDIR ./test
 COPY . .
 
 RUN go get -d -v ./...

@@ -1,9 +1,8 @@
 package main
 
 import (
-	"gogetent/os/user"
-
 	"fmt"
+	"gogetent/os/user"
 	"sync"
 )
 
@@ -26,7 +25,10 @@ func main() {
 	wg.Wait()
 }
 
+var mu = sync.Mutex{}
+
 func iterateUsers(listNum int) {
+	mu.Lock()
 	l := make([]string, 0, 10)
 	_ = user.IterateUsers(func(u *user.User) error {
 		l = append(l, u.Username)
@@ -34,6 +36,7 @@ func iterateUsers(listNum int) {
 	})
 	fmt.Printf("Goroutine %d user names: %+v \n\n", listNum, l)
 	wg.Done()
+	mu.Unlock()
 }
 
 func iterateGroups(listNum int) {
