@@ -30,7 +30,8 @@ const (
 	_groupsTestDataFile = "./testdata/groups.txt"
 )
 
-// iterateUsersHelperTest is used for testing users iteration functionality with fgetpwent library call.
+// iterateUsersHelperTest implements usersHelper interface and is used for testing
+// users iteration functionality with fgetpwent library call.
 type iterateUsersHelperTest struct {
 	f  *os.File
 	fp *C.FILE
@@ -71,7 +72,8 @@ func (i *iterateUsersHelperTest) end() {
 	}
 }
 
-// iterateGroupsHelperTest is used for testing users iteration functionality with fgetgrent library call.
+// iterateGroupsHelperTest implements groupsHelper interface and is used for testing
+// users iteration functionality with fgetgrent library call.
 type iterateGroupsHelperTest struct {
 	f  *os.File
 	fp *C.FILE
