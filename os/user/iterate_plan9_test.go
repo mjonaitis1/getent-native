@@ -83,30 +83,40 @@ var wantGroups = []*Group{
 	{Name: "test", Gid: "test"},
 }
 
+const testUsersFile = "./testdata/plan9/users.txt"
+
 func TestIterateUsers(t *testing.T) {
-	usersFile = "./testdata/plan9/user.txt"
+	usersFile = testUsersFile
 
 	gotUsers := make([]*User, 0, len(wantUsers))
 
-	_ = iterateUsers(func(user *User) error {
+	err := iterateUsers(func(user *User) error {
 		gotUsers = append(gotUsers, user)
 		return nil
 	})
 
+	if err != nil {
+		t.Error(err)
+	}
+
 	if !reflect.DeepEqual(wantUsers, gotUsers) {
-		t.Errorf("could not parse user correctly \n")
+		t.Errorf("could not parse users correctly: want: %+v got: %+v \n", wantUsers, gotUsers)
 	}
 }
 
 func TestIterateGroups(t *testing.T) {
-	usersFile = "./testdata/plan9/user.txt"
+	usersFile = testUsersFile
 
 	gotGroups := make([]*Group, 0, len(wantGroups))
 
-	_ = iterateGroups(func(groups *Group) error {
+	err := iterateGroups(func(groups *Group) error {
 		gotGroups = append(gotGroups, groups)
 		return nil
 	})
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	if !reflect.DeepEqual(wantGroups, gotGroups) {
 		t.Errorf("could not parse groups correctly \n")

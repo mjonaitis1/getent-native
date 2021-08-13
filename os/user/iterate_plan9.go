@@ -51,9 +51,10 @@ func matchPlan9UserGroup(value string, idx int, returnUser bool) lineFunc {
 			return
 		}
 		// id:name:leader:members
+		// id can be negative (start with a "-" symbol) in plan 9.
 		parts := strings.SplitN(string(line), ":", 4)
 		if len(parts) < 4 || parts[0] == "" || (idx != -1 && parts[idx] != value) ||
-			parts[0][0] == '+' || parts[0][0] == '-' {
+			parts[0][0] == '+' {
 			return
 		}
 
@@ -64,7 +65,7 @@ func matchPlan9UserGroup(value string, idx int, returnUser bool) lineFunc {
 				Gid:      parts[0],
 				Username: parts[1],
 				Name:     parts[1],
-				HomeDir:  "usr/" + parts[1],
+				HomeDir:  "/usr/" + parts[1],
 			}, nil
 		}
 		return &Group{Name: parts[1], Gid: parts[0]}, nil
@@ -86,7 +87,7 @@ func iterateUsers(fn NextUserFunc) error {
 
 func iterateGroups(fn NextGroupFunc) error {
 	return userGroupIterator(func(line []byte) (interface{}, error) {
-		v, _ := matchPlan9UserGroup("", -1, true)(line)
+		v, _ := matchPlan9UserGroup("", -1, false)(line)
 		if group, ok := v.(*Group); ok {
 			err := fn(group)
 			if err != nil {

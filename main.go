@@ -3,48 +3,78 @@ package main
 import (
 	"fmt"
 	"gogetent/os/user"
+	"reflect"
 	"sync"
 )
 
 var wg = sync.WaitGroup{}
-
-func main() {
-	num := 3
-
-	for i := 0; i < num; i++ {
-		go iterateUsers(i)
-		wg.Add(1)
-	}
-	wg.Wait()
-
-	fmt.Println("Starting to iterate over groups")
-	for i := 0; i < num; i++ {
-		go iterateGroups(i)
-		wg.Add(1)
-	}
-	wg.Wait()
-}
-
 var mu = sync.Mutex{}
 
-func iterateUsers(listNum int) {
-	mu.Lock()
-	l := make([]string, 0, 10)
-	_ = user.IterateUsers(func(u *user.User) error {
-		l = append(l, u.Username)
-		return nil
-	})
-	fmt.Printf("Goroutine %d user names: %+v \n\n", listNum, l)
-	wg.Done()
-	mu.Unlock()
+func main() {
+	fmt.Println("Started users groups iteration process")
+
+	users := iterateUsers()
+	groups := iterateGroups()
+
+	// Print out iterated users/groups
+	userNames := make([]string, 0, len(users))
+	for _, u := range users {
+		userNames = append(userNames, u.Username)
+	}
+	groupNames := make([]string, 0, len(groups))
+	for _, group := range groups {
+		groupNames = append(groupNames, group.Name)
+	}
+
+	fmt.Printf("Usernames: %+v \n\nGroupnames: %+v \n\n", userNames, groupNames)
+
+	num := 5
+	fmt.Printf("Running %d goroutines for users and groups \n", num)
+
+	for i := 0; i < num; i++ {
+		wg.Add(1)
+		go func(i int) {
+			u := iterateUsers()
+			if reflect.DeepEqual(users, u) {
+				fmt.Printf("Goroutine [Users#%d] iterated all %d users \n", i, len(u))
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	for i := 0; i < num; i++ {
+		wg.Add(1)
+		go func(i int) {
+			g := iterateGroups()
+			if reflect.DeepEqual(groups, g) {
+				fmt.Printf("Goroutine [Groups#%d] iterated all %d groups \n", i, len(g))
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
 }
 
-func iterateGroups(listNum int) {
-	l := make([]string, 0, 10)
-	_ = user.IterateGroups(func(u *user.Group) error {
-		l = append(l, u.Name)
+func iterateUsers() []*user.User {
+	mu.Lock()
+	l := make([]*user.User, 0, 10)
+	_ = user.IterateUsers(func(u *user.User) error {
+		l = append(l, u)
 		return nil
 	})
-	fmt.Printf("Goroutine %d group names: %+v \n\n", listNum, l)
-	wg.Done()
+	mu.Unlock()
+	return l
+}
+
+func iterateGroups() []*user.Group {
+	mu.Lock()
+	l := make([]*user.Group, 0, 10)
+	_ = user.IterateGroups(func(u *user.Group) error {
+		l = append(l, u)
+		return nil
+	})
+	mu.Unlock()
+	return l
 }
