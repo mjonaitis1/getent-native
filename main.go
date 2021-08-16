@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gogetent/os/user"
+	"log"
+	"os/user"
 	"reflect"
 	"sync"
 )
@@ -60,10 +61,13 @@ func main() {
 func iterateUsers() []*user.User {
 	mu.Lock()
 	l := make([]*user.User, 0, 10)
-	_ = user.IterateUsers(func(u *user.User) error {
+	err := user.IterateUsers(func(u *user.User) error {
 		l = append(l, u)
 		return nil
 	})
+	if err != nil {
+		log.Fatalf("error occurred while iterating users: %v \n", err)
+	}
 	mu.Unlock()
 	return l
 }
@@ -71,10 +75,13 @@ func iterateUsers() []*user.User {
 func iterateGroups() []*user.Group {
 	mu.Lock()
 	l := make([]*user.Group, 0, 10)
-	_ = user.IterateGroups(func(u *user.Group) error {
+	err := user.IterateGroups(func(u *user.Group) error {
 		l = append(l, u)
 		return nil
 	})
+	if err != nil {
+		log.Fatalf("error occurred while iterating groups: %v \n", err)
+	}
 	mu.Unlock()
 	return l
 }
