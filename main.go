@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/user"
 	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -27,7 +28,7 @@ func main() {
 		groupNames = append(groupNames, group.Name)
 	}
 
-	fmt.Printf("Usernames: %+v \n\nGroupnames: %+v \n\n", userNames, groupNames)
+	fmt.Printf("Usernames: %+v \n\nGroupnames: %+v \n\n", strings.Join(userNames, ","), strings.Join(groupNames, ","))
 
 	num := 5
 	fmt.Printf("Running %d goroutines for users and groups \n", num)
