@@ -10,6 +10,8 @@ import (
 func main() {
 	args := os.Args
 
+	os.Getppid()
+
 	if len(args) == 2 {
 		db := args[1]
 
